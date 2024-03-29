@@ -107,14 +107,9 @@ private:
 	UPROPERTY()
 	CharacterState CurrentState;
 
-	UPROPERTY()
-	CharacterState PrevState;
-
 	bool bCanChangeDir;
 	bool bIsComboInput;
 	int32 CurrentCombo;
-	int32 CurrentDashCount;
-	int32 MaxDashCount;
 	float RollSpeed;
 
 	float MaxHealth;

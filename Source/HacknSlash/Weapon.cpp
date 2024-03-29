@@ -53,21 +53,28 @@ void AWeapon::Tick(float DeltaTime)
 
 }
 
+// 데이터 테이블에서 Id로 무기 정보를 가져오는 함수
 void AWeapon::SetWeaponDataById(int Id)
 {
+	// 데이터 테이블을 가지고 있는 게임 인스턴스에 접근
 	auto HnsGameInstance = Cast<UHnsGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	if (IsValid(HnsGameInstance))
 	{
+		// Id를 통해 무기 정보 가져오기
 		WeaponData = HnsGameInstance->GetWeaponDataById(Id);
 		if (WeaponData)
 		{
+			// 무기의 메쉬를 세팅
 			Mesh->SetSkeletalMesh(WeaponData->WeaponMesh);
+
+			// 무기의 최대 콤보 횟수를 세팅
 			SetMaxComboBySection();
 		}
 	}
 }
 
+// 데이터 테이블에서 무기 이름으로 정보를 가져오는 함수
 void AWeapon::SetWeaponDataByName(FName WeaponName)
 {
 	auto HnsGameInstance = Cast<UHnsGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
@@ -83,11 +90,13 @@ void AWeapon::SetWeaponDataByName(FName WeaponName)
 	}
 }
 
+// 무기의 공격 타입을 설정하는 함수
 void AWeapon::SetCurrentAttackType(EAttackType NewType)
 {
 	CurrentAttackType = NewType;
 }
 
+// 무기의 최대 콤보 횟수를 설정하는 함수
 void AWeapon::SetMaxComboBySection()
 {
 	if (WeaponData->AttackMontage)
@@ -96,18 +105,40 @@ void AWeapon::SetMaxComboBySection()
 	}
 }
 
+// 무기 장착 쿨타임 함수
 void AWeapon::SetCanEquipByTimer()
 {
 	bCanEquip = false;
 
 	FTimerHandle WaitHandle;
 	float WaitTime = 0.25f;
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-
-		bCanEquip = true;
-		}), WaitTime, false);
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() 
+		{ 
+			bCanEquip = true; 
+		}
+	), WaitTime, false);
 }
 
+// 트레일 재생 함수
+void AWeapon::WeaponTrailBegin()
+{
+	WeaponTrail->BeginTrails(FName("TrailStart"), FName("TrailEnd"), ETrailWidthMode::ETrailWidthMode_FromCentre, 1.f);
+}
+
+// 트레일 종료 함수
+void AWeapon::WeaponTrailEnd()
+{
+	WeaponTrail->EndTrails();
+}
+
+// 무기를 주웠을 때 발생하는 이벤트
+void AWeapon::PickUpEvent()
+{
+	OnPickUp.Broadcast();
+	OnPickUp.Clear();
+}
+
+// 멤버 변수 Get 함수
 void AWeapon::SetCanEquip(bool State)
 {
 	bCanEquip = State;
@@ -136,20 +167,4 @@ int32 AWeapon::GetMaxCombo()
 bool AWeapon::GetCanEquip()
 {
 	return bCanEquip;
-}
-
-void AWeapon::WeaponTrailBegin()
-{
-	WeaponTrail->BeginTrails(FName("TrailStart"), FName("TrailEnd"), ETrailWidthMode::ETrailWidthMode_FromCentre, 1.f);
-}
-
-void AWeapon::WeaponTrailEnd()
-{
-	WeaponTrail->EndTrails();
-}
-
-void AWeapon::PickUpEvent()
-{
-	OnPickUp.Broadcast();
-	OnPickUp.Clear();
 }

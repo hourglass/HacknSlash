@@ -16,15 +16,13 @@ AHnsCharacter::AHnsCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Variable Setting //
-	CurrentState = CharacterState::Idle;
-	bCanChangeDir = true;
-	bIsComboInput = false;
-	CurrentCombo = 0;
-	MaxDashCount = 2;
-	CurrentDashCount = MaxDashCount;
-	RollSpeed = 400.f;
-	MaxHealth = 800.f;
-	CurrentHealth = MaxHealth;
+	CurrentState = CharacterState::Idle; // 캐릭터 상태 초기화
+	bCanChangeDir = true;				 // 방향 전환 상태 확인 변수
+	bIsComboInput = false;				 // 콤보 공격 추가 입력 확인 변수
+	CurrentCombo = 0;					 //	현재 콤보
+	RollSpeed = 400.f;					 // 구르기 속도
+	MaxHealth = 800.f;					 // 최대 체력
+	CurrentHealth = MaxHealth;			 // 현재 체력
 
 	// Component Setting //
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
@@ -116,6 +114,7 @@ AHnsCharacter::AHnsCharacter()
 	}
 }
 
+// 컴포넌트 초기화 후 호출되는 함수
 void  AHnsCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -127,12 +126,15 @@ void  AHnsCharacter::PostInitializeComponents()
 	if (IsValid(HnsCharacterAnim))
 	{
 		// Binding MontageEnded Event
+		// 몽타주 종료 후 호출되는 이벤트
 		HnsCharacterAnim->OnMontageEnded.AddDynamic(this, &AHnsCharacter::OnActionMontageEnded);
 
 		// Binding MontageBlendingOut Event
+		// 몽타주 블렌드 아웃 시 호출되는 이벤트
 		HnsCharacterAnim->OnMontageBlendingOut.AddDynamic(this, &AHnsCharacter::OnActionMontageBlendOut);
 
 		// Binding SendSwing Event
+		// 해당 몽타주의 공격 타입을 넘겨 주는 함수
 		HnsCharacterAnim->OnSendSwing.AddLambda([this]()->void {
 			if (IsValid(CurrentWeapon))
 			{
@@ -141,6 +143,7 @@ void  AHnsCharacter::PostInitializeComponents()
 			});
 
 		// Binding SendSmash Event
+		// 해당 몽타주의 공격 타입을 넘겨 주는 함수
 		HnsCharacterAnim->OnSendSmash.AddLambda([this]()->void {
 			if (IsValid(CurrentWeapon))
 			{
@@ -149,6 +152,7 @@ void  AHnsCharacter::PostInitializeComponents()
 			});
 
 		// Binding ComboAttack Event
+		// 공격 추가 입력 시 콤보 어택 이벤트 등록 함수
 		HnsCharacterAnim->OnComboCheck.AddLambda([this]()->void {
 			if (bIsComboInput)
 			{
@@ -163,6 +167,7 @@ void  AHnsCharacter::PostInitializeComponents()
 			});
 
 		// Binding AttackStart Event
+		// 공격 시작 시 이벤트
 		HnsCharacterAnim->OnAttackStart.AddLambda([this]()->void {
 			AttackStart();
 			});
@@ -173,6 +178,7 @@ void  AHnsCharacter::PostInitializeComponents()
 	{
 		// Binding Timeline Event
 		// Add 'One float Param Fucntion' for Delegate(FOnTimelineFloat Type)
+		// 구르기 타임라인 이벤트 등록
 		RollFunction.BindUFunction(this, FName("RollByCurve"));
 		RollTimeline->AddInterpFloat(RollCurve, RollFunction);
 		RollTimeline->SetLooping(false);
@@ -198,30 +204,11 @@ void AHnsCharacter::Tick(float DeltaTime)
 
 }
 
-float AHnsCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
-{
-	ChangeState(CharacterState::Hit);
-	HnsCharacterAnim->PlayHitMontage();
-
-	HitReactionComponent->PlayHitImpact(DamageCauser);
-	HitReactionComponent->PlayHitStun();
-	HitReactionComponent->PlayRimLighting();
-
-	CurrentHealth = FMath::Clamp(CurrentHealth - DamageAmount, 0, MaxHealth);
-	OnHealthChanged.Broadcast();
-
-	if (CurrentHealth <= 0)
-	{
-		Die();
-	}
-
-	return 0.f;
-}
-
 
 // Called to bind functionality to input
 void AHnsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	// 키 입력 이벤트 등록
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	// Axis Event
@@ -234,6 +221,7 @@ void AHnsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction(TEXT("Equip"), IE_Pressed, this, &AHnsCharacter::EquipAndDrop);
 }
 
+// 상하 이동 함수
 void AHnsCharacter::MoveForward(float value)
 {
 	if (CurrentState != CharacterState::Idle)
@@ -248,6 +236,7 @@ void AHnsCharacter::MoveForward(float value)
 	AddMovementInput(Direction, value);
 }
 
+// 좌우 이동 함수
 void AHnsCharacter::MoveRight(float value)
 {
 	if (CurrentState != CharacterState::Idle)
@@ -262,6 +251,7 @@ void AHnsCharacter::MoveRight(float value)
 	AddMovementInput(Direction, value);
 }
 
+// 마우스 클릭 방향으로 캐릭터를 회전하는 함수
 void AHnsCharacter::LookToCursorDirection()
 {
 	if (bCanChangeDir)
@@ -292,6 +282,8 @@ void AHnsCharacter::LookToCursorDirection()
 	}
 }
 
+
+// 공격 가능 상태 반환 함수
 bool AHnsCharacter::CanAttack()
 {
 	bool Condition =
@@ -304,44 +296,64 @@ bool AHnsCharacter::CanAttack()
 	return Condition;
 }
 
+// 공격 함수
 void AHnsCharacter::Attack()
 {
+	// 공격이 가능한 상태인지 확인
 	if (CanAttack())
 	{
+		// 마우스 클릭 방향으로 회전
 		LookToCursorDirection();
 
-		if (CurrentState == CharacterState::Attack)
+		// 현재 상태 체크
+		if (CurrentState != CharacterState::Attack)
 		{
-			bIsComboInput = true;
+			// 캐릭터 상태 변경
+			ChangeState(CharacterState::Attack);
+
+			// 공격 시작
+			AttackComboStart();
 		}
 		else
 		{
-			ChangeState(CharacterState::Attack);
-			AttackComboStart();
+			// 이미 공격 상태라면 콤보 상태로 전환
+			bIsComboInput = true;
 		}
 	}
 }
 
 // Call By AnimNotify Event
+// 공격 시작 함수
 void AHnsCharacter::AttackStart()
 {
 	bCanChangeDir = false;
-	WeaponManager->WeaponTrailBegin();
 
+	// 트레일 재생
+	WeaponManager->WeaponTrailBegin();
+	
+	// 무기가 있는 지 체크
 	if (IsValid(CurrentWeapon))
 	{
+		// 공격 시 캐릭터를 앞으로 전진
 		auto LaunchForce = (GetActorForwardVector() * CurrentWeapon->GetWeaponData()->LaunchForce);
 		LaunchCharacter(LaunchForce, false, false);
 	}
 }
-	
+
+// 공격 추가 입력 시 처리 함수
 void AHnsCharacter::AttackComboStart()
 {
+	// 현재 콤보 횟수 추가
 	CurrentCombo = FMath::Clamp<int32>(CurrentCombo + 1, 1, CurrentWeapon->GetMaxCombo());
+
+	// 다음 몽타주 섹션으로 이동
 	HnsCharacterAnim->JumpToAttackMontageSection(CurrentCombo);
+
+	// 공격 몽타주 재생
 	HnsCharacterAnim->PlayAttackMontage(CurrentWeapon->GetWeaponData()->AttackSpeed);
 }
 
+// 공격 종료 처리 함수
 void AHnsCharacter::AttackComboEnd()
 {
 	bIsComboInput = false;
@@ -349,6 +361,8 @@ void AHnsCharacter::AttackComboEnd()
 	CurrentCombo = 0;
 }
 
+
+// 구르기 가능 상태 반환 함수
 bool AHnsCharacter::CanRoll()
 {
 	bool Condition =
@@ -360,76 +374,43 @@ bool AHnsCharacter::CanRoll()
 	return Condition;
 }
 
+// 구르기 함수
 void AHnsCharacter::Roll()
 {
+	// 구르기 가능 상태인지 확인
 	if (CanRoll())
 	{
+		// 상태 전환
 		ChangeState(CharacterState::Roll);
 
+		// 마우스 클릭 방향으로 회전
 		LookToCursorDirection();
+
+		// 충돌 채널을 Ghost로 변경
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Ghost"));
+
+		// 몽타주 재생
 		HnsCharacterAnim->PlayRollMontage();
+
+		// 구르기 타임라인 재생
 		RollTimeline->PlayFromStart();
 	}
 }
 
+// 구르기 타임라인 이벤트
 void AHnsCharacter::RollByCurve(float DistanceMultiplier)
 {
+	// 전방 벡터 * 구르기 속도 * 커브 데이터 값으로 이동
 	FVector DashDirection = GetActorForwardVector() * (RollSpeed * DistanceMultiplier);
 	GetCharacterMovement()->Velocity.X = DashDirection.X;
 	GetCharacterMovement()->Velocity.Y = DashDirection.Y;
 }
 
-
-void AHnsCharacter::EquipAndDrop()
-{
-	if (CurrentState == CharacterState::Attack)
-	{
-		return;
-	}
-
-	if (!IsValid(CurrentWeapon))
-	{
-		WeaponManager->EquipWeapon(CurrentWeapon);
-		if (IsValid(CurrentWeapon))
-		{
-			HnsCharacterAnim->SetAttackMontage(CurrentWeapon->GetWeaponData()->AttackMontage);
-
-			auto AttackChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
-			WeaponManager->SetAttackChannel(AttackChannel);
-		}
-	}
-	else
-	{
-		WeaponManager->DropWeapon(CurrentWeapon);
-	}
-}
-
-void AHnsCharacter::Die()
-{
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Ghost"));
-	GetCharacterMovement()->StopMovementImmediately();
-
-	HnsCharacterAnim->SetIsDead(true);
-	HnsCharacterAnim->StopAllMontages(0.f);
-	WeaponManager->DropWeapon(CurrentWeapon);
-	HealthBarWidget->SetVisibility(false, false);
-
-	FTimerHandle WaitHandle;
-	float Waittime = 3.f;
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-
-		UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
-		}),
-		Waittime, false);
-}
-
+// 상태 처리 함수
 void AHnsCharacter::ChangeState(CharacterState State)
 {
-	PrevState = CurrentState;
-	CurrentState = State;
-
-	if (PrevState == CharacterState::Attack)
+	// 공격 상태 처리
+	if (CurrentState == CharacterState::Attack)
 	{
 		auto AttackMontage = CurrentWeapon->GetWeaponData()->AttackMontage;
 		HnsCharacterAnim->Montage_Stop(0.2f, AttackMontage);
@@ -437,25 +418,57 @@ void AHnsCharacter::ChangeState(CharacterState State)
 		AttackComboEnd();
 	}
 
-	if (PrevState == CharacterState::Roll)
+	// 구르기 상태 처리
+	if (CurrentState == CharacterState::Roll)
 	{
 		bCanChangeDir = true;
 		RollTimeline->Stop();
 	}
+
+	// 상태 갱신
+	CurrentState = State;
 }
 
-float AHnsCharacter::GetHealthRatio()
+
+// 무기 장착, 해제 함수
+void AHnsCharacter::EquipAndDrop()
 {
-	return CurrentHealth / MaxHealth;
+	// 공격 도중이라면 실행 불가
+	if (CurrentState == CharacterState::Attack)
+	{
+		return;
+	}
+
+	if (!IsValid(CurrentWeapon))
+	{
+		// 무기가 없다면 장착 함수 수행
+		WeaponManager->EquipWeapon(CurrentWeapon);
+		if (IsValid(CurrentWeapon))
+		{
+			// 무기 정보로 부터 공격 몽타주 가져오기
+			HnsCharacterAnim->SetAttackMontage(CurrentWeapon->GetWeaponData()->AttackMontage);
+
+			// 공격 채널 설정
+			auto AttackChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
+			WeaponManager->SetAttackChannel(AttackChannel);
+		}
+	}
+	else
+	{
+		// 무기가 있다면 장착 해제 함수 수행
+		WeaponManager->DropWeapon(CurrentWeapon);
+	}
 }
 
 
 // MontageEnded Fuction
+// 몽타주 종료 시 이벤트
 void AHnsCharacter::OnActionMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	// bInterrupted의 경우 몽타주가 완전히 종료 되지 않는 경우도 체크됨
 	if (!bInterrupted)
 	{
-		//TODO:::Add Decrease MoveCount
+		// 공격 몽타주 종료 시 Idle로 변경
 		if (CurrentState == CharacterState::Attack)
 		{
 			ChangeState(CharacterState::Idle);
@@ -464,20 +477,26 @@ void AHnsCharacter::OnActionMontageEnded(UAnimMontage* Montage, bool bInterrupte
 }
 
 // MontageBlendOut Fuction
+// 몽타주 블렌드 아웃(몽타주 종료 후 원래 포즈로 돌아가는 구간) 이벤트
 void AHnsCharacter::OnActionMontageBlendOut(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (!bInterrupted)
 	{
-		//TODO:::Add Decrease MoveCount
 		if (CurrentState == CharacterState::Roll)
 		{
+			// 상태를 Idle로 변경
 			ChangeState(CharacterState::Idle);
+
+			// 충돌 채널을 Character로 복구
 			GetCapsuleComponent()->SetCollisionProfileName(TEXT("Character"));
+
+			// 구르기 모션이 끝난 후 타임라인 중지
 			RollTimeline->Stop();
 		}
 
 		if (CurrentState == CharacterState::Hit)
 		{
+			// 피격 후 상태를 Idle로 변경
 			ChangeState(CharacterState::Idle);
 		}
 	}
@@ -487,17 +506,20 @@ void AHnsCharacter::OnActionMontageBlendOut(UAnimMontage* Montage, bool bInterru
 // Called By AttackableInterface
 void AHnsCharacter::AttackCheck()
 {
+	// 공격 체크 함수 호출
 	WeaponManager->AttackCheck();
 }
 
 void AHnsCharacter::AttackCheckEnd()
 {
+	// 공격 체크 종료 함수 호출
 	WeaponManager->AttackCheckEnd();
 	WeaponManager->WeaponTrailEnd();
 }
 
 bool AHnsCharacter::IsFinalAttack()
 {
+	// 마지막 콤보 공격인지 확인하는 함수
 	if (IsValid(CurrentWeapon))
 	{
 		return CurrentCombo == CurrentWeapon->GetMaxCombo();
@@ -506,4 +528,66 @@ bool AHnsCharacter::IsFinalAttack()
 	{
 		return false;
 	}
+}
+
+
+// 피격 시 처리 함수
+float AHnsCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	// 피격 몽타주 재생
+	ChangeState(CharacterState::Hit);
+	HnsCharacterAnim->PlayHitMontage();
+
+	// 피격 시 타격감 함수 실행
+	HitReactionComponent->PlayHitImpact(DamageCauser);
+	HitReactionComponent->PlayHitStun();
+	HitReactionComponent->PlayRimLighting();
+
+	// 현재 체력 감소
+	CurrentHealth = FMath::Clamp(CurrentHealth - DamageAmount, 0, MaxHealth);
+	OnHealthChanged.Broadcast();
+
+	// 사망 함수
+	if (CurrentHealth <= 0)
+	{
+		Die();
+	}
+
+	return 0.f;
+}
+
+// 플레이어 사망 함수
+void AHnsCharacter::Die()
+{
+	// 충돌 채널을 Ghost로 변경
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Ghost"));
+
+	// 이동 중지
+	GetCharacterMovement()->StopMovementImmediately();
+
+	// 애님인스턴스을 죽음 상태로 변경
+	HnsCharacterAnim->SetIsDead(true);
+
+	// 몽타주 중지
+	HnsCharacterAnim->StopAllMontages(0.f);
+
+	// 무기 장착 해제
+	WeaponManager->DropWeapon(CurrentWeapon);
+
+	// HP 위젯 비활성화
+	HealthBarWidget->SetVisibility(false, false);
+
+	// 일정 시간 뒤 레벨 재시작
+	FTimerHandle WaitHandle;
+	float Waittime = 3.f;
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+
+		UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+		}),
+		Waittime, false);
+}
+
+float AHnsCharacter::GetHealthRatio()
+{
+	return CurrentHealth / MaxHealth;
 }

@@ -18,7 +18,6 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Variable Setting //
-	MaxCombo = 2;
 	CurrentCombo = 0;
 	MaxHealth = 400.f;
 	CurrentHealth = MaxHealth;
@@ -188,21 +187,143 @@ void AEnemy::Tick(float DeltaTime)
 
 }
 
+// 현재 무기 세팅 함수
+void AEnemy::SetCurrentWeapon(class AWeapon* Weapon)
+{
+	CurrentWeapon = Weapon;
+	if (IsValid(CurrentWeapon))
+	{
+		// 장착 불가 상태로 변경
+		CurrentWeapon->SetCanEquip(false);
+
+		// 공격 몽타주 세팅
+		EnemyAnim->SetAttackMontage(CurrentWeapon->GetWeaponData()->AttackMontage);
+
+		// 현재 무기로 등록
+		EnemyController->SetCurrentWeapon(CurrentWeapon);
+		WeaponManager->SetManagedWeapon(CurrentWeapon);
+
+		// 공격 채널 세팅
+		auto AttackChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2);
+		WeaponManager->SetAttackChannel(AttackChannel);
+
+		// 최대 콤보 횟수 설정
+		MaxCombo = CurrentWeapon->GetMaxCombo();
+	}
+}
+
+// 무기 장착 함수
+void AEnemy::Equip()
+{
+	// 무기 탐색 후 장착
+	WeaponManager->EquipWeapon(CurrentWeapon);
+	if (IsValid(CurrentWeapon))
+	{
+		// 탐색한 무기를 현재 무기로 세팅
+		SetCurrentWeapon(CurrentWeapon);
+
+		// 플레이어 추적
+		ChaseTarget();
+		 
+		// Behavior Tree 갱신
+		EnemyController->ClearTargetWeapon();
+	}
+	else
+	{
+		// Behavior Tree 갱신
+		EnemyController->ClearCurrentWeapon();
+	}
+}
+
+// 무기 장착 해제 함수
+void AEnemy::Drop()
+{
+	// 피격 시 무기 해체 함수 호출
+	WeaponManager->HittedDropWeapon(CurrentWeapon);
+
+	// Behavior Tree 갱신
+	EnemyController->ClearCurrentWeapon();
+}
+
+
+// 공격 함수
+void AEnemy::Attack()
+{
+	if (IsValid(CurrentWeapon))
+	{
+		// 상태 전환
+		ChangeState(EnemyState::Attack);
+
+		// 몽타주 재생
+		EnemyAnim->PlayAttackMontage(CurrentWeapon->GetWeaponData()->AttackSpeed);
+	}
+}
+
+// 공격 시작 함수
+void AEnemy::AttackStart()
+{
+	// UAIBehaviorInterface 델리게이트
+	OnComboStart.Broadcast();
+
+	// 트레일 재생
+	WeaponManager->WeaponTrailBegin();
+
+	if (IsValid(CurrentWeapon))
+	{
+		// 공격 시 캐릭터 전진
+		auto LaunchForce = (GetActorForwardVector() * CurrentWeapon->GetWeaponData()->LaunchForce);
+		GetCharacterMovement()->StopMovementImmediately();
+		LaunchCharacter(LaunchForce, false, false);
+	}
+}
+
+void AEnemy::PlayAttackSlowMotion()
+{
+	// 밸런스를 위해 적군의 공격 속도 조절
+	if (IsValid(CurrentWeapon))
+	{
+		GetMesh()->GetAnimInstance()->Montage_SetPlayRate(CurrentWeapon->GetWeaponData()->AttackMontage, 0.2f);
+	}
+
+	// 공격 시간 동안만 몽타주 속도 감소
+	float WaitTime = 0.35f;
+	FTimerHandle WaitHandle;
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+		if (IsValid(CurrentWeapon))
+		{
+			GetMesh()->GetAnimInstance()->Montage_SetPlayRate(
+				CurrentWeapon->GetWeaponData()->AttackMontage,
+				CurrentWeapon->GetWeaponData()->AttackSpeed
+			);
+		}
+		}), WaitTime, false);
+}
+
+
+// 피해 처리 함수
 float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
+	// 상태 전환
 	ChangeState(EnemyState::Hit);
+
+	// 충돌 채널을 EnemyHitted로 변경
+	// 공격으로 밀려나면서 적끼리 충돌 하는것을 방지
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("EnemyHitted"));
 
+	// Behavior Tree 갱신
 	EnemyController->ClearTargetActor();
 	EnemyAnim->PlayHitMontage();
-
+	
+	// 타격감 함수 수행
 	HitReactionComponent->PlayHitImpact(DamageCauser);
 	HitReactionComponent->PlayHitStun();
 	HitReactionComponent->PlayRimLighting();
 
+	// 체력 감소
 	CurrentHealth = FMath::Clamp(CurrentHealth - DamageAmount, 0, MaxHealth);
 	OnHealthChanged.Broadcast();
 
+	// 사망 함수
 	if (CurrentHealth <= 0)
 	{
 		Die();
@@ -211,61 +332,35 @@ float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEv
 	return 0.f;
 }
 
-void AEnemy::SetCurrentWeapon(class AWeapon* Weapon)
-{
-	CurrentWeapon = Weapon;
-	if (IsValid(CurrentWeapon))
-	{
-		CurrentWeapon->SetCanEquip(false);
-		EnemyAnim->SetAttackMontage(CurrentWeapon->GetWeaponData()->AttackMontage);
-		EnemyController->SetCurrentWeapon(CurrentWeapon);
-		WeaponManager->SetManagedWeapon(CurrentWeapon);
-
-		auto AttackChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2);
-		WeaponManager->SetAttackChannel(AttackChannel);
-
-		MaxCombo = CurrentWeapon->GetMaxCombo();
-	}
-}
-
-void AEnemy::Equip()
-{
-	WeaponManager->EquipWeapon(CurrentWeapon);
-	if (IsValid(CurrentWeapon))
-	{
-		SetCurrentWeapon(CurrentWeapon);
-		ChaseTarget();
-
-		EnemyController->ClearTargetWeapon();
-	}
-	else
-	{
-		EnemyController->ClearCurrentWeapon();
-	}
-}
-
-void AEnemy::Drop()
-{
-	WeaponManager->HittedDropWeapon(CurrentWeapon);
-	EnemyController->ClearCurrentWeapon();
-}
-
 void AEnemy::Die()
 {
+	// 충돌 채널을 Ghost로 변경
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Ghost"));
+
+	// 이동 중지
 	GetCharacterMovement()->StopMovementImmediately();
-	
+
+	// 애님인스턴스 상태를 죽음으로 변경
 	EnemyAnim->SetIsDead(true);
+
+	// 몽타주 중지
 	EnemyAnim->StopAllMontages(0.f);
+	
+	// AIController 중지
 	EnemyController->UnPossess();
+
+	// 무기 장착 해제
 	WeaponManager->DropWeapon(CurrentWeapon);
 
+	// Hp바 위젯 비활성화
 	HealthBarWidget->SetVisibility(false, false);
 
+	// 디졸브 타임라인 재생
 	DissolveTimeline->AddInterpFloat(DissolveCurve_Dead, DissolveFunction);
 	DissolveTimeline->SetLooping(false);
 	DissolveTimeline->PlayFromStart();
 
+	// 파괴 함수 호출
 	FTimerHandle WaitHandle;
 	float Waittime = 3.f;
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
@@ -281,28 +376,7 @@ float AEnemy::GetHealthRatio()
 }
 
 
-void AEnemy::Attack()
-{
-	if (IsValid(CurrentWeapon))
-	{
-		ChangeState(EnemyState::Attack);
-		EnemyAnim->PlayAttackMontage(CurrentWeapon->GetWeaponData()->AttackSpeed);
-	}
-}
-
-void AEnemy::AttackStart()
-{
-	OnComboStart.Broadcast();
-	WeaponManager->WeaponTrailBegin();
-
-	if (IsValid(CurrentWeapon))
-	{
-		auto LaunchForce = (GetActorForwardVector() * CurrentWeapon->GetWeaponData()->LaunchForce);
-		GetCharacterMovement()->StopMovementImmediately();
-		LaunchCharacter(LaunchForce, false, false);
-	}
-}
-
+// 생성 시 디졸브 효과과 몽타주 실행 함수
 void AEnemy::BattleCry()
 {
 	// Add 'One float Param Fucntion' for Delegate(FOnTimelineFloat Type)
@@ -313,19 +387,27 @@ void AEnemy::BattleCry()
 	EnemyAnim->PlayBattleCryMontage();
 }
 
+// 디졸브 효과 타임라인
 void AEnemy::DissolveByCurve(float Alpha)
 {
 	GetMesh()->SetScalarParameterValueOnMaterials(FName("DissolveIntensity"), Alpha);
 }
 
+
+// 플레이어 추적 함수
 void AEnemy::ChaseTarget()
 {
+	// 상태 전환
 	ChangeState(EnemyState::Chase);
 
+	// 추적 상대 설정
 	CurrentTarget = Cast<APawn>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	// Behavior Tree 갱신
 	EnemyController->SetTargetActor(CurrentTarget);
 }
 
+// 추적 상태에 따른 이동 속도 변경 함수
 void AEnemy::ChangeMoveSpeed()
 {
 	if (EnemyAnim->GetMoveBackward())
@@ -338,26 +420,7 @@ void AEnemy::ChangeMoveSpeed()
 	}
 }
 
-void AEnemy::PlayAttackSlowMotion()
-{
-	if (IsValid(CurrentWeapon))
-	{
-		GetMesh()->GetAnimInstance()->Montage_SetPlayRate(CurrentWeapon->GetWeaponData()->AttackMontage, 0.2f);
-	}
-
-	float WaitTime = 0.35f;
-	FTimerHandle WaitHandle;
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-		if (IsValid(CurrentWeapon))
-		{
-			GetMesh()->GetAnimInstance()->Montage_SetPlayRate(
-				CurrentWeapon->GetWeaponData()->AttackMontage,
-				CurrentWeapon->GetWeaponData()->AttackSpeed
-			);
-		}
-		}), WaitTime, false);
-}
-
+// 상태 전환 처리 함수
 void AEnemy::ChangeState(EnemyState State)
 {
 	PrevState = CurrentState;
@@ -366,23 +429,29 @@ void AEnemy::ChangeState(EnemyState State)
 
 	if (PrevState == EnemyState::Attack)
 	{
+		// 이전 상태가 공격이었다면 트레일 중지
 		WeaponManager->WeaponTrailEnd();
 	}
 
 	if (CurrentState != EnemyState::Chase)
 	{
+		// 플레이어 추적 상태가 아닐 때는 서로의 경로를 계산하지 않도록 설정
 		GetCharacterMovement()->bUseRVOAvoidance = false;
 	}
 
+	// 상태에 따라 맞는 함수 처리
 	switch (CurrentState)
 	{
 	case EnemyState::Spawned:
+		// 소환 시 충돌 채널을 Ghost로 설정
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Ghost"));
 		break;
 	case EnemyState::Idle:
+		// 소환 후 충돌 채널을 Enemy로 설정
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
 		break;
 	case EnemyState::Chase:
+		// 플레이어 추적 시 서로의 경로를 계산하도록 설정
 		GetCharacterMovement()->bUseRVOAvoidance = true;
 		break;
 	case EnemyState::Attack:
@@ -396,32 +465,46 @@ void AEnemy::ChangeState(EnemyState State)
 
 
 // MontageEnded Fuction
+// 몽타주 종료 시 이벤트
 void AEnemy::OnActionMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (CurrentState == EnemyState::Attack)
 	{
+		// UAIBehaviorInterface 공격 종료 시 이벤트
 		OnAttackEnded.Broadcast();
+
+		// 상태 전환
 		ChangeState(EnemyState::Idle);
+
+		// 플레이어 추적
 		ChaseTarget();
+
+		// 콤보 초기화
 		CurrentCombo = 0;
 	}
 
 	if (CurrentState == EnemyState::Spawned)
 	{
+		// 소환 완료 후 상태를 Idle로 변경
 		ChangeState(EnemyState::Idle);
 		ChaseTarget();
 	}
 
 	if (CurrentState == EnemyState::Hit && !bInterrupted)
 	{
+		// 피격 종료 후 충돌 채널을 Enemy로 변경
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
 		if(CurrentWeapon)
 		{
+			//무기가 있다면 플레이어 추적
 			ChaseTarget();
 		}
 		else
 		{
+			// 상태 전환
 			ChangeState(EnemyState::Idle);
+
+			// 무기가 없다면 무기 탐색
 			EnemyController->ClearTargetActor();
 		}
 	}
@@ -431,26 +514,31 @@ void AEnemy::OnActionMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 // Called By AttackableInterface
 void AEnemy::AttackCheck()
 {
+	// 공격 체크 함수 수행
 	WeaponManager->AttackCheck();
 }
 
 void AEnemy::AttackCheckEnd()
 {
+	// 공격 체크 종료 함수 수행
 	WeaponManager->AttackCheckEnd();
 	WeaponManager->WeaponTrailEnd();
 }
 
 // Called By AIBehaviorInterface
+// Behavior Tree의 블랙보드를 가져오는 함수
 AActor* AEnemy::GetActorFromBB(FName KeyName)
 {
 	return EnemyController->GetActorFromBB(KeyName);
 }
 
+// AI 목적지 설정 함수
 void AEnemy::SetDestination(FVector Destination)
 {
 	EnemyController->SetDestination(Destination);
 }
 
+// 무기 탐색 함수
 void AEnemy::FindWeapon()
 {
 	WeaponManager->FindWeapon(TargetWeapon);

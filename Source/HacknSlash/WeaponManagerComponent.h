@@ -52,20 +52,20 @@ private:
 	void PlayAttackReaction(AActor* HittedActor);
 
 	UPROPERTY()
-	TSubclassOf<UCameraShakeBase> HitShake;
+	TSubclassOf<UCameraShakeBase> HitShake; // 카메라 쉐이크 클래스
 
 	UPROPERTY()
-	UParticleSystemComponent* HitParticle;
+	UParticleSystemComponent* HitParticle; // 공격 시 파티클
 
-	class AWeapon* ManagedWeapon;
+	class AWeapon* ManagedWeapon; // 현재 장착되어 관리될 무기
 
-	ACharacter* OwnCharacter;
+	ACharacter* OwnCharacter;	// 무기를 장착한 캐릭터 오브젝트
 
-	ETraceTypeQuery AttackChannel;
-	TArray<AActor*> HitIgnore;
-	FVector PrevStartLoc;
-	FVector PrevEndLoc;
-	bool bFirstTake;
+	ETraceTypeQuery AttackChannel; // 공격 충돌 체크 채널 
+	TArray<AActor*> HitIgnore;	   // 충돌을 무시할 채널
+	FVector PrevStartLoc;		   // 무기 소켓 이전 프레임 저장 변수
+	FVector PrevEndLoc;			   // 무기 소켓 이전 프레임 저장 변수
+	bool bFirstTake;			   // 공격 체크 시 첫번째 수행인지 확인하는 변수
 
 	float EquipRadius;
 	float FindRadius;
