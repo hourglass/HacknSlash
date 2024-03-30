@@ -25,9 +25,9 @@ Unreal 프로젝트
 ## Player
 [HnsCharacter](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/HnsCharacter.cpp)  
 - 플레이어의 조작을 담당하는 클래스입니다.  
-- 이동, 공격, 구르기, 무기 장착 & 해제 기능을 수행합니다.  
-- 플레이어의 상태는 enum을 사용해 관리했습니다. (Idle, Attack, Roll, Hit)  
+- 이동, 공격, 구르기, 무기 장착 & 해제 기능을 수행합니다.
 - 마우스 좌클릭을 연속으로 누르면 콤보 공격을 수행합니다.  
+- 플레이어의 상태는 enum을 사용해 관리했습니다. (Idle, Attack, Roll, Hit)  
 - 피격 시 처리 함수를 수행하고 UI를 갱신합니다.  
 ---
 ## Enemy
