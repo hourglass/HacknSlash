@@ -38,6 +38,8 @@ Unreal 프로젝트
 - BehaviorTree의 Task를 통해 플레이어 추적, 공격, 뒷걸음질, 무기 줍기를 수행합니다.  
 ---
 [AIBehaviorInterface.h](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/AIBehaviorInterface.h)  
+BehaviorTree의 Task 수행시 호출할 인터페이스 클래스  
+<br/>
 [BTT_TryAction](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_TryAction.cpp)  
 [BTT_FocusTarget](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_FocusTarget.cpp)  
 [BTT_AttackTarget](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_AttackTarget.cpp)  
