@@ -3,7 +3,7 @@ Unreal 프로젝트
 ## Weapon
 [Weapon](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/Weapon.cpp)  
 - 무기의 정보를 관리하고 넘겨주는 클래스입니다.  
-- 데이터테이블 에셋에서 정보를 받아와 클래스의 멤버 변수에 저장합니다.  
+- DataTable 에셋에서 정보를 받아와 클래스의 멤버 변수에 저장합니다.  
 ---
 [WeaponManagerComponent](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/WeaponManagerComponent.cpp)  
 - 캐릭터가 장착한 무기를 관리하는 컴포넌트입니다.  
