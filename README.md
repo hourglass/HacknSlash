@@ -1,6 +1,10 @@
 # HacknSlash
 Unreal 프로젝트
 ## Weapon
+[Weapon](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/Weapon.cpp)  
+- 무기의 정보를 관리하고 넘겨주는 클래스입니다.  
+- 데이터테이블 에셋에서 정보를 받아와 클래스의 멤버 변수에 저장합니다.  
+---
 [WeaponManagerComponent](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/WeaponManagerComponent.cpp)  
 - 캐릭터가 장착한 무기를 관리하는 컴포넌트입니다.  
 - 떨어진 무기 줍고 장착하는 기능과 장착한 무기를 해제하는 기능이 있습니다.  
@@ -11,10 +15,6 @@ Unreal 프로젝트
 [AttackCheckNotifyState](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/AttackCheckNotifyState.cpp)  
 - 몽타주의 애니메이션 틱과 틱 종료시 이벤트를 수행하는 클래스입니다.  
 - 공격 관련 인터페이스의 함수를 호출하여 공격 충돌 체크와 체크 종료 시 이벤트를 실행합니다.  
----
-[Weapon](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/Weapon.cpp)  
-- 무기의 정보를 관리하고 넘겨주는 클래스입니다.  
-- 데이터테이블 에셋에서 정보를 받아와 클래스의 멤버 변수에 저장합니다.  
 ---
 [HitReactionComponent](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/HitReactionComponent.cpp)  
 - 공격 시 타격감을 주기 위한 기능이 구현된 컴포넌트 입니다.  
