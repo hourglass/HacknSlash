@@ -37,6 +37,7 @@ Unreal 프로젝트
 - 현재 상태에 따라 BehaviorTree를 갱신합니다.  
 - BehaviorTree의 Task를 통해 플레이어 추적, 공격, 뒷걸음질, 무기 줍기를 수행합니다.  
 ---
+## BehaviorTree Task
 [AIBehaviorInterface.h](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/AIBehaviorInterface.h)  
 BehaviorTree의 Task 수행시 호출할 인터페이스 클래스  
 <br/>
