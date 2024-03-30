@@ -8,7 +8,7 @@ Unreal 프로젝트
 [WeaponManagerComponent](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/WeaponManagerComponent.cpp)  
 - 캐릭터가 장착한 무기를 관리하는 컴포넌트입니다.  
 - 떨어진 무기를 줍고 장착하는 기능과 장착한 무기를 해제하는 기능이 있습니다.  
-- 공격 성공 시 카메라 쉐이킹, 애니메이션 속도 조절, 맞은 대상의 넉백 기능을 수행합니다.   
+- 공격 성공 시 카메라 쉐이킹, 애니메이션 속도 조절, 맞은 대상의 넉백 기능을 수행합니다.  
 - 애니메이션 동안 수행할 공격 충돌 체크 함수를 가지고 있습니다.  
 - 공격 유형에 따라 다른 공격 충돌 체크를 수행합니다.  
 ---
@@ -24,11 +24,18 @@ Unreal 프로젝트
 ---
 ## Player
 [HnsCharacter](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/HnsCharacter.cpp)  
-- 내용 
+- 플레이어의 조작을 담당하는 클래스입니다.  
+- 이동, 공격, 구르기, 무기 장착 & 해제 기능을 수행합니다.  
+- 플레이어의 상태는 enum을 사용해 관리했습니다. (Idle, Attack, Roll, Hit)  
+- 마우스 좌클릭을 연속으로 누르면 콤보 공격을 수행합니다.  
+- 피격 시 처리 함수를 수행하고 UI를 갱신합니다.  
 ---
 ## Enemy
 [Enemy](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/Enemy.cpp)  
-- 내용 
+- 적군을 조종하는 클래스입니다.  
+- 적군의 상태는 enum을 사용해 관리했습니다. (Spawned, Idle, Chase, Attack, Hit)  
+- 현재 상태에 따라 BehaviorTree를 갱신합니다.  
+- BehaviorTree의 Task를 통해 플레이어 추적, 공격, 뒷걸음질, 무기 줍기를 수행합니다.  
 ---
 [BTT_TryAction](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_TryAction.cpp)  
 [BTT_FocusTarget](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_FocusTarget.cpp)  
