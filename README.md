@@ -42,8 +42,20 @@ Unreal 프로젝트
 BehaviorTree의 Task 수행시 호출할 인터페이스 클래스  
 <br/>
 [BTT_TryAction](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_TryAction.cpp)  
+동작간 랜덤한 텀을 주기 위해 수행하는 함수  
+<br/>
 [BTT_FocusTarget](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_FocusTarget.cpp)  
+바라볼 목표를 설정하는 함수  
+<br/>
 [BTT_AttackTarget](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_AttackTarget.cpp)  
+AI 공격 처리 함수  
+<br/>
 [BTT_SetRecoilLocation](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_SetRecoilLocation.cpp)  
+플레이어에게서 뒷걸음질 하는 함수  
+<br/>
 [BTT_FindWeapon](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_FindWeapon.cpp)  
+주우러 갈 무기를 탐색하는 함수  
+<br/>
 [BTT_EquipWeapon](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/BTT_EquipWeapon.cpp)  
+근처에 떨어진 무기를 장착하는 함수  
+<br/>
