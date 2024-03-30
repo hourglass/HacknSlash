@@ -16,7 +16,6 @@ Unreal 프로젝트
 - 무기의 정보를 관리하고 넘겨주는 클래스입니다.  
 - 데이터테이블 에셋에서 정보를 받아와 클래스의 멤버 변수에 저장합니다.  
 ---
-## HitReaction
 [HitReactionComponent](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/HitReactionComponent.cpp)  
 - 공격 시 타격감을 주기 위한 기능이 구현된 컴포넌트 입니다.  
 - 커브 데이터의 값을 따라 메쉬의 로케이션을 변경하여 피격 시 진동을 수행합니다.  
