@@ -95,30 +95,6 @@ void UWeaponManagerComponent::EquipWeapon(AWeapon*& Weapon)
 	}
 }
 
-// AI가 주우러 갈 무기를 탐색하는 함수
-void UWeaponManagerComponent::FindWeapon(AWeapon*& TargetWeapon)
-{
-	if (!IsValid(TargetWeapon))
-	{
-		// 현재 타겟으로 삼은 무기가 없다면 탐색
-		GetNearestWeapon(TargetWeapon, FindRadius);
-	}
-	else
-	{
-		// 탐색한 무기가 있다면 무기가 장착 가능한지 확인
-		if (TargetWeapon->GetCanEquip())
-		{
-			// 탐색 성공
-			return;
-		}
-		else
-		{
-			// 장착 불가능하다면 타겟 초기화
-			TargetWeapon = nullptr;
-		}
-	}
-}
-
 // 장착한 무기를 떨어트리는 함수
 void UWeaponManagerComponent::DropWeapon(AWeapon*& Weapon)
 { 
@@ -233,6 +209,17 @@ void UWeaponManagerComponent::GetNearestWeapon(AWeapon*& Weapon, float SensingRa
 	}
 }
 
+
+// 공격 시 타격감을 위한 함수 실행
+void UWeaponManagerComponent::PlayAttackReaction(AActor* HittedActor)
+{
+	// Play Attack Reation
+	PlayAttackStiffen();
+	PlayCameraShake();
+	LaunchTarget(HittedActor);
+	FinalAttackEvent(HittedActor);
+}
+
 // 카메라 쉐이크 실행 함수
 void UWeaponManagerComponent::PlayCameraShake()
 {
@@ -325,15 +312,6 @@ void UWeaponManagerComponent::FinalAttackEvent(AActor* HittedActor)
 	}
 }
 
-// 공격 시 타격감을 위한 함수 실행
-void UWeaponManagerComponent::PlayAttackReaction(AActor* HittedActor)
-{
-	// Play Attack Reation
-	PlayAttackStiffen();
-	PlayCameraShake();
-	LaunchTarget(HittedActor);
-	FinalAttackEvent(HittedActor);
-}
 
 // 공격 체크 함수
 void UWeaponManagerComponent::AttackCheck()
@@ -516,5 +494,29 @@ void UWeaponManagerComponent::WeaponTrailEnd()
 	if (IsValid(ManagedWeapon))
 	{
 		ManagedWeapon->WeaponTrailEnd();
+	}
+}
+
+// AI가 주우러 갈 무기를 탐색하는 함수
+void UWeaponManagerComponent::FindWeapon(AWeapon*& TargetWeapon)
+{
+	if (!IsValid(TargetWeapon))
+	{
+		// 현재 타겟으로 삼은 무기가 없다면 탐색
+		GetNearestWeapon(TargetWeapon, FindRadius);
+	}
+	else
+	{
+		// 탐색한 무기가 있다면 무기가 장착 가능한지 확인
+		if (TargetWeapon->GetCanEquip())
+		{
+			// 탐색 성공
+			return;
+		}
+		else
+		{
+			// 장착 불가능하다면 타겟 초기화
+			TargetWeapon = nullptr;
+		}
 	}
 }
