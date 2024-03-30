@@ -11,7 +11,7 @@ EBTNodeResult::Type UBTT_FocusTarget::ExecuteTask(UBehaviorTreeComponent& OwnerC
 
 	auto MyPawn = OwnerComp.GetAIOwner()->GetPawn();
 
-	// 이동 시 목표를 바라보는 함수
+	// 바라볼 목표를 설정하는 함수
 	// 현재 액터가 인터페이스를 가지고 있는지 확인
 	bool HasAIBehavior = MyPawn->GetClass()->ImplementsInterface(UAIBehaviorInterface::StaticClass());
 	if (HasAIBehavior)

@@ -552,11 +552,13 @@ void AEnemy::FindWeapon()
 	}
 }
 
+// 무기 장착 함수
 void AEnemy::EquipWeapon()
 {
 	Equip();
 }
 
+// AI 공격 처리 함수
 void AEnemy::AttackTarget()
 {
 	Attack();
