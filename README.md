@@ -4,7 +4,7 @@ Unreal 프로젝트
 [WeaponManagerComponent](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/WeaponManagerComponent.cpp)  
 - 캐릭터가 장착한 무기를 관리하는 컴포넌트입니다.  
 - 떨어진 무기 줍고 장착하는 기능과 장착한 무기를 해제하는 기능이 있습니다.  
-- 공격 성공 시 카메라 쉐이킹, 애니메이션 속도 조절, 맞은 대상 넉백 기능을 수행합니다.   
+- 공격 성공 시 카메라 쉐이킹, 애니메이션 속도 조절, 맞은 대상의 넉백 기능을 수행합니다.   
 - 애니메이션 동안 수행할 공격 충돌 체크 함수를 가지고 있습니다. 공격 유형에 따라 다른 공격 충돌 체크를 수행합니다.  
 ---
 [AttackCheckNotifyState](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/AttackCheckNotifyState.cpp)  
