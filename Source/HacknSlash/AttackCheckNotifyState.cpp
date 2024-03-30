@@ -13,9 +13,11 @@ void UAttackCheckNotifyState::NotifyTick(
 	auto Owner = MeshComp->GetOwner();
 	if (IsValid(Owner))
 	{
+		// 현재 액터가 인터페이스를 가지고 있는지 확인
 		bool HasAttackable = Owner->GetClass()->ImplementsInterface(UAttackableInterface::StaticClass());
 		if (HasAttackable)
 		{
+			// 인터페이스에서 AttackCheck() 함수 실행
 			auto AttackableObject = Cast<IAttackableInterface>(Owner);
 			AttackableObject->AttackCheck();
 		}
@@ -30,9 +32,11 @@ void UAttackCheckNotifyState::NotifyEnd(
 	auto Owner = MeshComp->GetOwner();
 	if (IsValid(Owner))
 	{
+		// 현재 액터가 인터페이스를 가지고 있는지 확인
 		bool HasAttackable = Owner->GetClass()->ImplementsInterface(UAttackableInterface::StaticClass());
 		if (HasAttackable)
 		{
+			// 인터페이스에서 AttackCheckEnd() 함수 실행
 			auto AttackableObject = Cast<IAttackableInterface>(Owner);
 			AttackableObject->AttackCheckEnd();
 		}
