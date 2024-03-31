@@ -20,7 +20,6 @@ Unreal 프로젝트
 - 공격 시 타격감을 주기 위한 기능이 구현된 컴포넌트 입니다.  
 - 커브 데이터의 값을 따라 메쉬의 로케이션을 변경하여 피격 시 진동을 수행합니다.  
 - 커브 데이터의 값을 따라 CustomTimeDilation 값을 변경하여 피격 시 경직을 수행합니다.  
-- 커브 데이터의 값을 따라 메쉬의 머티리얼 값을 변경하여 피격 시 림라이팅 효과를 수행합니다.  
 ---
 ## Player
 [HnsCharacter](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/HnsCharacter.cpp)  
