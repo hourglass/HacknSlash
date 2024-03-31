@@ -19,7 +19,8 @@ Unreal 프로젝트
 [HitReactionComponent](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/HitReactionComponent.cpp)  
 - 공격 시 타격감을 주기 위한 기능이 구현된 컴포넌트 입니다.  
 - 커브 데이터의 값을 따라 메쉬의 로케이션을 변경하여 피격 시 진동을 수행합니다.  
-- 커브 데이터의 값을 따라 CustomTimeDilation 값을 변경하여 피격 시 경직을 수행합니다.  
+- 커브 데이터의 값을 따라 CustomTimeDilation 값을 변경하여 피격 시 경직을 수행합니다.
+- 커브 데이터의 값을 따라 머티리얼의 벡터 변수 값을 변경하여 림라이팅을 수행합니다.
 ---
 ## Player
 [HnsCharacter](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/HnsCharacter.cpp)  
