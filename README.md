@@ -1,5 +1,6 @@
 # HacknSlash
 Unreal 프로젝트  
+---
 [WeaponManagerComponent](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/WeaponManagerComponent.cpp)  
 - 캐릭터가 장착한 무기를 관리하는 컴포넌트입니다.  
 - 떨어진 무기를 줍고 장착하는 기능과 장착한 무기를 해제하는 기능이 있습니다.  
