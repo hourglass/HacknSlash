@@ -1,6 +1,6 @@
 # HacknSlash
 Unreal 프로젝트  
----
+## Weapon
 [WeaponManagerComponent](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/WeaponManagerComponent.cpp)  
 - 캐릭터가 장착한 무기를 관리하는 컴포넌트입니다.  
 - 떨어진 무기를 줍고 장착하는 기능과 장착한 무기를 해제하는 기능이 있습니다.  
@@ -8,7 +8,6 @@ Unreal 프로젝트
 - 애니메이션 동안 수행할 공격 충돌 체크 함수를 가지고 있습니다.  
 - 공격 유형에 따라 다른 공격 충돌 체크를 수행합니다.
 ---
-## Weapon
 [Weapon](https://github.com/hourglass/HacknSlash/blob/main/Source/HacknSlash/Weapon.cpp)  
 - 무기의 정보를 관리하고 넘겨주는 클래스입니다.  
 - DataTable 에셋에서 정보를 받아와 클래스의 멤버 변수에 저장합니다.  
