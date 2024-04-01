@@ -113,14 +113,14 @@ void UHitReactionComponent::PlayHitImpact(AActor* Target)
 		// 진동을 시작할 메쉬의 원래 위치
 		OriginLoc = FVector(0.f, 0.f, OwnCharacter->GetMesh()->GetRelativeLocation().Z);
 		
-		// 공격한 상대의 반대 방향 구하기
+		// 공격 당한 방향 구하기
 		FVector TargetDir = OwnCharacter->GetActorLocation() - Target->GetActorLocation();
 		TargetDir.Normalize();
 
 		// 진동 시 x, y 축으로만 진동
 		TargetDir = FVector(TargetDir.X, TargetDir.Y, 0.f);
 		
-		// 타임라인 목표치를 상대의 반대 방향 * 밀리는 계수로 설정
+		// 타임라인 목표치를 공격 당한 방향 * 밀리는 계수로 설정
 		TargetLoc = OriginLoc + (TargetDir * ImpactForce);
 
 		// 타임라인 실행
@@ -184,7 +184,7 @@ void UHitReactionComponent::RimLightingByCurve(float Color)
 {
 	if (IsValid(OwnCharacter))
 	{
-		// 커브 데이터에 따라 메쉬의 머티리얼 값이 변경
+		// 커브 데이터에 따라 머티리얼이 가진 벡터 값을 변경
 		OwnCharacter->GetMesh()->SetVectorParameterValueOnMaterials(FName("HittedColor"), FVector4(Color, 0, 0, 0));
 	}
 }

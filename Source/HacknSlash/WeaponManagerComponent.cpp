@@ -121,7 +121,7 @@ void UWeaponManagerComponent::DropWeapon(AWeapon*& Weapon)
 }
 
 // 피격 시 무기를 떨어트리는 함수
-void UWeaponManagerComponent::HittedDropWeapon(AWeapon*& Weapon)
+void UWeaponManagerComponent::DropWeaponByHit(AWeapon*& Weapon)
 {
 	if (IsValid(Weapon))
 	{
@@ -214,8 +214,8 @@ void UWeaponManagerComponent::GetNearestWeapon(AWeapon*& Weapon, float SensingRa
 void UWeaponManagerComponent::PlayAttackReaction(AActor* HittedActor)
 {
 	// Play Attack Reation
-	PlayAttackStiffen();
 	PlayCameraShake();
+	PlayAttackStiffen();
 	LaunchTarget(HittedActor);
 	FinalAttackEvent(HittedActor);
 }
@@ -223,9 +223,11 @@ void UWeaponManagerComponent::PlayAttackReaction(AActor* HittedActor)
 // 카메라 쉐이크 실행 함수
 void UWeaponManagerComponent::PlayCameraShake()
 {
+	// 무기에 저장된 카메라 쉐이크 에셋 정보 가져오기
 	HitShake = ManagedWeapon->GetWeaponData()->HitShakeWeak;
 	if (IsValid(HitShake))
 	{
+		// 에셋으로 저장한 카메라 쉐이크 수행
 		UGameplayStatics::PlayWorldCameraShake(GetWorld(), HitShake, GetOwner()->GetActorLocation(), 0, 1000, 1.f, false);
 	}
 }
@@ -235,17 +237,17 @@ void UWeaponManagerComponent::PlayAttackStiffen()
 {
 	if (IsValid(OwnCharacter) && IsValid(ManagedWeapon))
 	{
-		// 캐릭터의 애님 인스턴스에 접근해 몽타주를 가져오기
-		// 무기 정보에 있는 느리게 만들 수치 가져오기
+		// 캐릭터의 애님 인스턴스에 접근해 몽타주 속도를 조절
+		// 무기 정보에 있는 느려지는 수치를 적용
 		OwnCharacter->GetMesh()->GetAnimInstance()->Montage_SetPlayRate(
 			ManagedWeapon->GetWeaponData()->AttackMontage,
 			ManagedWeapon->GetWeaponData()->AttackStiffness
 		);
 
-		// 무기 정보에 있는 느려지는 시간 가져오기
+		// 무기 정보에 있는 기존 속도 복구 시간을 가져오기
 		auto AttackRecovery = ManagedWeapon->GetWeaponData()->AttackRecovery;
 
-		// 타이머를 통해 일정 시간동안 몽타주 재생속도 조절
+		// 타이머를 통해 일정 시간후에 원래 속도로 복구
 		FTimerHandle WaitHandle;
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 			if (IsValid(OwnCharacter) && IsValid(ManagedWeapon))

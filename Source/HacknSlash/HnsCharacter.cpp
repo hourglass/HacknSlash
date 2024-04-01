@@ -38,7 +38,7 @@ AHnsCharacter::AHnsCharacter()
 	}
 
 	static ConstructorHelpers::FObjectFinder<UMaterial>
-		M_BodyMatarial(TEXT("/Game/InfinityBladeWarriors/Character/CompleteCharacters/Textures_Materials/CharM_Barbarous/M_Char_Barbrous_Dissolve.M_Char_Barbrous_Dissolve"));
+		M_BodyMatarial(TEXT("/Game/InfinityBladeWarriors/Character/CompleteCharacters/Textures_Materials/CharM_Barbarous/M_Char_Barbrous_Inst.M_Char_Barbrous_Inst"));
 
 	if (M_BodyMatarial.Succeeded())
 	{

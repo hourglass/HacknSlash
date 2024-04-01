@@ -33,7 +33,7 @@ AEnemy::AEnemy()
 	}
 
 	static ConstructorHelpers::FObjectFinder<UMaterial>
-		M_BodyMatarial(TEXT("/Game/InfinityBladeWarriors/Character/CompleteCharacters/Textures_Materials/CharM_FrostGiant/M_Char_FrostGiant_Dissovle.M_Char_FrostGiant_Dissovle"));
+		M_BodyMatarial(TEXT("/Game/InfinityBladeWarriors/Character/CompleteCharacters/Textures_Materials/CharM_FrostGiant/M_Char_FrostGiant_Inst.M_Char_FrostGiant_Inst"));
 
 	if (M_BodyMatarial.Succeeded())
 	{
@@ -239,7 +239,7 @@ void AEnemy::Equip()
 void AEnemy::Drop()
 {
 	// 피격 시 무기 해체 함수 호출
-	WeaponManager->HittedDropWeapon(CurrentWeapon);
+	WeaponManager->DropWeaponByHit(CurrentWeapon);
 
 	// Behavior Tree 갱신
 	EnemyController->ClearCurrentWeapon();

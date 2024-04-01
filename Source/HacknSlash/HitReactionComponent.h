@@ -78,6 +78,7 @@ private:
 	FOnTimelineFloat RimLightingFunction;
 
 	ACharacter* OwnCharacter;
+
 	FVector OriginLoc;
 	FVector TargetLoc;
 	float ImpactForce;

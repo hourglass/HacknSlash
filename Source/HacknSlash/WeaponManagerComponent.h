@@ -32,7 +32,7 @@ public:
 	void EquipWeapon(class AWeapon*& Weapon);
 	void FindWeapon(class AWeapon*& Weapon);
 	void DropWeapon(class AWeapon*& Weapon);
-	void HittedDropWeapon(class AWeapon*& Weapon);
+	void DropWeaponByHit(class AWeapon*& Weapon);
 
 	void AttackCheck();
 	void AttackCheckSwing();
