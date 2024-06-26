@@ -385,7 +385,7 @@ void UWeaponManagerComponent::AttackCheckSwing()
 
 		// BoxTraceMulti로 충돌 체크
 		bool Hit = UKismetSystemLibrary::BoxTraceMulti(GetWorld(), MidStartLoc, MidEndLoc, FVector(MidWidth, 0.f, 0.f),
-			BoxDirection, AttackChannel, false, HitIgnore, EDrawDebugTrace::ForDuration, HitArray, true
+			BoxDirection, AttackChannel, false, HitIgnore, EDrawDebugTrace::None, HitArray, true
 			, FLinearColor::Red, FLinearColor::Green, 0.5f
 		);
 
@@ -447,7 +447,7 @@ void UWeaponManagerComponent::AttackCheckSmash()
 
 	// SphereTraceMulti로 충돌 체크
 	bool Hit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), MidLoc, MidLoc, 120.f,
-		AttackChannel, false, HitIgnore, EDrawDebugTrace::ForDuration, HitArray, true
+		AttackChannel, false, HitIgnore, EDrawDebugTrace::None, HitArray, true
 		, FLinearColor::Red, FLinearColor::Green, 0.5f
 	);
 

@@ -279,7 +279,7 @@ void AEnemy::AttackStart()
 
 void AEnemy::PlayAttackSlowMotion()
 {
-	// 밸런스를 위해 적군의 공격 속도 조절
+	// 적군의 공격 속도 조절
 	if (IsValid(CurrentWeapon))
 	{
 		GetMesh()->GetAnimInstance()->Montage_SetPlayRate(CurrentWeapon->GetWeaponData()->AttackMontage, 0.2f);
@@ -289,7 +289,7 @@ void AEnemy::PlayAttackSlowMotion()
 	float WaitTime = 0.35f;
 	FTimerHandle WaitHandle;
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-		if (IsValid(CurrentWeapon))
+		if (IsValid(Owner) && IsValid(CurrentWeapon))
 		{
 			GetMesh()->GetAnimInstance()->Montage_SetPlayRate(
 				CurrentWeapon->GetWeaponData()->AttackMontage,
