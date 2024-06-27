@@ -258,23 +258,25 @@ void AHnsCharacter::LookToCursorDirection()
 	{
 		bCanChangeDir = false;
 
-		FVector WorldLocation;
-		FVector WorldDirection;
-		FVector MouseLocation;
-
 		auto PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 		if (IsValid(PlayerController))
 		{
-			PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
+			float LocationX, LocationY;
+			PlayerController->GetMousePosition(LocationX, LocationY);
 
-			MouseLocation = (WorldLocation.Z / WorldDirection.Z) * (WorldDirection * -1.f) + WorldLocation;
+			FVector2D MousePosition(LocationX, LocationY);
+
+			FHitResult HitResult;
+			if (PlayerController->GetHitResultAtScreenPosition(MousePosition, ECC_Visibility, true, HitResult))
+			{
+				FVector MouseDirection = HitResult.Location - GetActorLocation();
+
+				FVector LookDirection(MouseDirection.X, MouseDirection.Y, 0.f);
+				LookDirection.Normalize();
+
+				GetCapsuleComponent()->SetRelativeRotation(LookDirection.Rotation());
+			}
 		}
-
-		FVector MouseDirection = MouseLocation - GetActorLocation();
-		FVector LookDirection(MouseDirection.X, MouseDirection.Y, 0.f);
-		LookDirection.Normalize();
-
-		GetCapsuleComponent()->SetRelativeRotation(LookDirection.Rotation());
 	}
 	else
 	{
