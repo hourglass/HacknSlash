@@ -261,19 +261,25 @@ void AHnsCharacter::LookToCursorDirection()
 		auto PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 		if (IsValid(PlayerController))
 		{
+			// 마우스 위치 가져오기
 			float LocationX, LocationY;
 			PlayerController->GetMousePosition(LocationX, LocationY);
 
+			// 가져온 X, Y 값을 저장
 			FVector2D MousePosition(LocationX, LocationY);
 
+			// 
 			FHitResult HitResult;
 			if (PlayerController->GetHitResultAtScreenPosition(MousePosition, ECC_Visibility, true, HitResult))
 			{
+				// 현재 마우스 위치로 향하는 벡터 구하기
 				FVector MouseDirection = HitResult.Location - GetActorLocation();
 
+				// 방향 벡터 저장 후 정규화
 				FVector LookDirection(MouseDirection.X, MouseDirection.Y, 0.f);
 				LookDirection.Normalize();
 
+				// 캐릭터 회전
 				GetCapsuleComponent()->SetRelativeRotation(LookDirection.Rotation());
 			}
 		}
